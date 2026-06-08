@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h2>Вітаємо, {{ name }}!</h2>
+        <p class="text-muted">Ваша посада: <strong>{{ role }}</strong></p>
+        <hr>
+        <p>Тут ми згодом додамо меню для роботи з товарами, чеками та працівниками.</p>
+
+        <a href="{{ url_for('logout') }}" class="btn btn-danger mt-3">Вийти з системи</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>ZLAGODA - Супермаркет</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container mt-4">
+
+        {% if session.get('user_id') %}
+        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4 p-3 rounded">
+            <div class="container-fluid">
+                <a class="navbar-brand fw-bold text-primary" href="{{ url_for('dashboard') }}">ZLAGODA</a>
+                <div class="collapse navbar-collapse">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('employees') }}">Працівники</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('categories') }}">Категорії</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('products') }}">Товари</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link fw-bold" href="{{ url_for('store_products') }}">На вітрині</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('customers') }}">Клієнти</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link fw-bold text-success" href="{{ url_for('receipts') }}">Чеки</a>
+                        </li>
+                    </ul>
+                    <span class="navbar-text me-3">
+                        {{ session.get('name') }} (<strong>{{ session.get('role') }}</strong>)
+                    </span>
+                    <a href="{{ url_for('logout') }}" class="btn btn-outline-danger btn-sm">Вийти</a>
+                </div>
+            </div>
+        </nav>
+        {% endif %}
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>
