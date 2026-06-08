@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Категорії товарів</h2>
+    {% if role == 'Менеджер' %}
+    <a href="{{ url_for('add_category') }}" class="btn btn-success">+ Додати категорію</a>
+    {% endif %}
+</div>
+
+<div class="card shadow-sm col-md-6">
+    <div class="card-body p-0">
+        <table class="table table-hover table-bordered mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Номер</th>
+                    <th>Назва категорії</th>
+                    <th>Дії</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cat in categories %}
+                <tr>
+                    <td><strong>{{ cat['category_number'] }}</strong></td>
+                    <td>{{ cat['category_name'] }}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary">Редагувати</button>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="3" class="text-center">Категорій ще немає.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
