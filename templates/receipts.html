@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Історія продажів (Чеки)</h2>
+    {% if role == 'Касир' %}
+    <a href="{{ url_for('add_receipt') }}" class="btn btn-success">🛒 Створити чек</a>
+    {% endif %}
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover table-bordered mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>№ Чека</th>
+                    <th>Дата та час</th>
+                    <th>Касир</th>
+                    <th>Знижка клієнта</th>
+                    <th>ПДВ (20%)</th>
+                    <th>Загальна сума</th>
+                    <th>Дії</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in receipts %}
+                <tr>
+                    <td><strong>{{ r['check_number'] }}</strong></td>
+                    <td>{{ r['print_date'] }}</td>
+                    <td>{{ r['empl_surname'] }} {{ r['empl_name'] }}</td>
+                    <td>
+                        {% if r['percent'] %}
+                            <span class="badge bg-success">-{{ r['percent'] }}%</span>
+                        {% else %}
+                            <span class="text-muted">Без картки</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-muted">{{ "%.2f"|format(r['vat']) }} ₴</td>
+                    <td><strong>{{ "%.2f"|format(r['sum_total']) }} ₴</strong></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-info">Деталі</button>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="text-center">Жодного чека ще не створено.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
