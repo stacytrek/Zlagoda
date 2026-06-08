@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Постійні клієнти</h2>
+    <a href="{{ url_for('add_customer') }}" class="btn btn-success">+ Додати клієнта</a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover table-bordered mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Номер картки</th>
+                    <th>ПІБ Клієнта</th>
+                    <th>Телефон</th>
+                    <th>Знижка</th>
+                    <th>Дії</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in customers %}
+                <tr>
+                    <td><strong>{{ c['card_number'] }}</strong></td>
+                    <td>{{ c['cust_surname'] }} {{ c['cust_name'] }} {{ c['cust_patronymic'] or '' }}</td>
+                    <td>{{ c['phone_number'] }}</td>
+                    <td>
+                        <span class="badge bg-success">{{ c['percent'] }}%</span>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary">Редагувати</button>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-center">Клієнтів ще немає.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

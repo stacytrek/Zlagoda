@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">Виставити товар на вітрину</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label>UPC (Штрих-код)</label>
+                        <input type="text" name="upc" class="form-control" required maxlength="12" placeholder="Наприклад: 123456789012">
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Базовий товар</label>
+                        <select name="id_product" class="form-select" required>
+                            <option value="" disabled selected>Оберіть товар з довідника...</option>
+                            {% for prod in products %}
+                                <option value="{{ prod['id_product'] }}">{{ prod['product_name'] }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>Ціна продажу (грн)</label>
+                            <input type="number" step="0.01" min="0" name="selling_price" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Кількість (шт)</label>
+                            <input type="number" min="0" name="products_number" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-4 form-check">
+                        <input type="checkbox" name="promotional_product" class="form-check-input" id="promoCheck">
+                        <label class="form-check-label text-warning fw-bold" for="promoCheck">
+                            Це акційний товар?
+                        </label>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('store_products') }}" class="btn btn-secondary">Скасувати</a>
+                        <button type="submit" class="btn btn-success">Додати в магазин</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
