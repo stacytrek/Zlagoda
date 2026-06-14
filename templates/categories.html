@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid py-2">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom d-print-none">
+        <div>
+            <h2 class="h3 mb-1 text-dark fw-bold">Категорії товарів</h2>
+        </div>
+        
+        <div class="d-flex gap-2">
+            <button onclick="window.print()" class="btn btn-outline-dark shadow-sm px-3 py-2">
+                🖨️ Звіт (Друк)
+            </button>
+
+            {% if session.get('role') == 'Менеджер' %}
+            <a href="{{ url_for('add_category') }}" class="btn btn-success shadow-sm px-3 py-2">
+                + Додати категорію
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-body p-0 table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Номер</th>
+                        <th>Назва категорії</th>
+                        <th class="text-center pe-4 d-print-none">Дії</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cat in categories %}
+                    <tr>
+                        <td class="ps-4 font-monospace">{{ cat.category_number }}</td>
+                        <td class="fw-bold">{{ cat.category_name }}</td>
+                        <td class="text-center pe-4 d-print-none">
+                            {% if session.get('role') == 'Менеджер' %}
+                            <a href="{{ url_for('edit_category', id=cat.category_number) }}" class="btn btn-sm btn-outline-primary">Редагувати</a>
+                            <a href="{{ url_for('delete_category', id=cat.category_number) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Вилучити категорію?');">Видалити</a>
+                            {% else %}
+                            <span class="text-muted small">Немає прав</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="3" class="text-center py-4 text-muted">Категорій ще немає.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

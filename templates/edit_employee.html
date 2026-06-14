@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h4 class="mb-0">Редагування працівника: {{ employee['id_employee'] }}</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Прізвище</label>
+                            <input type="text" name="empl_surname" class="form-control" value="{{ employee['empl_surname'] }}" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Ім'я</label>
+                            <input type="text" name="empl_name" class="form-control" value="{{ employee['empl_name'] }}" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">По батькові</label>
+                            <input type="text" name="empl_patronymic" class="form-control" value="{{ employee['empl_patronymic'] }}">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Посада</label>
+                            <select name="empl_role" class="form-select">
+                                <option value="Касир" {% if employee['empl_role'] == 'Касир' %}selected{% endif %}>Касир</option>
+                                <option value="Менеджер" {% if employee['empl_role'] == 'Менеджер' %}selected{% endif %}>Менеджер</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Зарплата (₴)</label>
+                            <input type="number" step="0.01" name="salary" class="form-control" value="{{ employee['salary'] }}" required>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Телефон</label>
+                            <input type="text" name="phone_number" class="form-control" value="{{ employee['phone_number'] }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Місто</label>
+                            <input type="text" name="city" class="form-control" value="{{ employee['city'] }}" required>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-8">
+                            <label class="form-label">Вулиця</label>
+                            <input type="text" name="street" class="form-control" value="{{ employee['street'] }}" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Індекс</label>
+                            <input type="text" name="zip_code" class="form-control" value="{{ employee['zip_code'] }}" required>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('employees') }}" class="btn btn-outline-secondary">Скасувати</a>
+                        <button type="submit" class="btn btn-primary">Зберегти зміни</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

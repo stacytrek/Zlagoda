@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">Оформити картку клієнта</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>Номер картки</label>
+                            <input type="text" name="card_number" class="form-control" required maxlength="13" placeholder="Наприклад: CARD001">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Відсоток знижки (%)</label>
+                            <input type="number" min="0" max="100" name="percent" class="form-control" required value="0">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label>Прізвище</label>
+                            <input type="text" name="cust_surname" class="form-control" required maxlength="50">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label>Ім'я</label>
+                            <input type="text" name="cust_name" class="form-control" required maxlength="50">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label>По батькові (необов'язково)</label>
+                            <input type="text" name="cust_patronymic" class="form-control" maxlength="50">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>Телефон</label>
+                            <input type="text" name="phone_number" class="form-control" required maxlength="13" placeholder="+380...">
+                        </div>
+                    </div>
+
+                    <h6 class="mt-2 text-muted">Адреса (необов'язково)</h6>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label>Місто</label>
+                            <input type="text" name="city" class="form-control" maxlength="50">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label>Вулиця</label>
+                            <input type="text" name="street" class="form-control" maxlength="50">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label>Індекс</label>
+                            <input type="text" name="zip_code" class="form-control" maxlength="9">
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-3">
+                        <a href="{{ url_for('customers') }}" class="btn btn-secondary">Скасувати</a>
+                        <button type="submit" class="btn btn-success">Видати картку</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

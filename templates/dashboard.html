@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .navbar { display: none !important; }
+    
+    /* Анімація для карток меню при наведенні */
+    .menu-card {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        border-radius: 1rem;
+    }
+    .menu-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,.1) !important;
+    }
+</style>
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12 d-flex flex-column flex-md-row justify-content-between align-items-md-center bg-white p-4 rounded-4 shadow-sm border-0">
+            <div class="mb-3 mb-md-0">
+                <h2 class="mb-1 fw-bold text-dark">Вітаємо, {{ name }}!</h2>
+                <p class="text-muted mb-0">Посада: 
+                    {% if role == 'Менеджер' %}
+                        <span class="badge bg-primary px-3 py-2 ms-1 rounded-pill">{{ role }}</span>
+                    {% else %}
+                        <span class="badge bg-secondary px-3 py-2 ms-1 rounded-pill">{{ role }}</span>
+                    {% endif %}
+                </p>
+            </div>
+            <a href="{{ url_for('logout') }}" class="btn btn-outline-danger px-4 py-2 rounded-3 fw-bold shadow-sm">
+                Вийти з системи
+            </a>
+        </div>
+    </div>
+
+    <h4 class="fw-bold mb-3 ps-2 text-secondary">Головне меню панелі керування</h4>
+    
+    <div class="row g-4">
+        
+        <div class="col-12 col-sm-6 col-lg-3">
+            <a href="{{ url_for('store_products') }}" class="text-decoration-none">
+                <div class="card h-100 shadow-sm border-0 menu-card bg-white">
+                    <div class="card-body text-center p-4">
+                        <div class="display-3 mb-3">🏪</div>
+                        <h5 class="card-title text-dark fw-bold mb-1">Вітрина</h5>
+                        <p class="small text-muted mb-0">Наявність товарів у залі</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-3">
+            <a href="{{ url_for('customers') }}" class="text-decoration-none">
+                <div class="card h-100 shadow-sm border-0 menu-card bg-white">
+                    <div class="card-body text-center p-4">
+                        <div class="display-3 mb-3">💳</div>
+                        <h5 class="card-title text-dark fw-bold mb-1">Клієнти</h5>
+                        <p class="small text-muted mb-0">База лояльності та знижки</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-3">
+            <a href="{{ url_for('receipts') }}" class="text-decoration-none">
+                <div class="card h-100 shadow-sm border-0 menu-card bg-white">
+                    <div class="card-body text-center p-4">
+                        <div class="display-3 mb-3">🧾</div>
+                        <h5 class="card-title text-dark fw-bold mb-1">Чеки</h5>
+                        <p class="small text-muted mb-0">Історія усіх продажів</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        {% if role == 'Касир' %}
+        <div class="col-12 col-sm-6 col-lg-3">
+            <a href="{{ url_for('add_receipt') }}" class="text-decoration-none">
+                <div class="card h-100 shadow border-0 menu-card" style="background: linear-gradient(135deg, #198754 0%, #20c997 100%);">
+                    <div class="card-body text-center p-4">
+                        <div class="display-3 mb-3">🛒</div>
+                        <h5 class="card-title text-white fw-bold mb-1">Каса</h5>
+                        <p class="small text-white-50 mb-0">Створити новий чек</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endif %}
+
+        {% if role == 'Менеджер' %}
+        <div class="col-12 col-sm-6 col-lg-3">
+            <a href="{{ url_for('products') }}" class="text-decoration-none">
+                <div class="card h-100 shadow-sm border-0 menu-card bg-white">
+                    <div class="card-body text-center p-4">
+                        <div class="display-3 mb-3">📦</div>
+                        <h5 class="card-title text-dark fw-bold mb-1">Товари</h5>
+                        <p class="small text-muted mb-0">Базовий довідник</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-3">
+            <a href="{{ url_for('categories') }}" class="text-decoration-none">
+                <div class="card h-100 shadow-sm border-0 menu-card bg-white">
+                    <div class="card-body text-center p-4">
+                        <div class="display-3 mb-3">🏷️</div>
+                        <h5 class="card-title text-dark fw-bold mb-1">Категорії</h5>
+                        <p class="small text-muted mb-0">Групи асортименту</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-3">
+            <a href="{{ url_for('employees') }}" class="text-decoration-none">
+                <div class="card h-100 shadow-sm border-0 menu-card bg-white">
+                    <div class="card-body text-center p-4">
+                        <div class="display-3 mb-3">👥</div>
+                        <h5 class="card-title text-dark fw-bold mb-1">Працівники</h5>
+                        <p class="small text-muted mb-0">Керування персоналом</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

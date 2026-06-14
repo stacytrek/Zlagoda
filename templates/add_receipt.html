@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">🛒 Формування чека (Каса)</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" id="receiptForm">
+
+                    <div class="mb-4 bg-light p-3 rounded">
+                        <label class="fw-bold text-success">Картка клієнта (необов'язково)</label>
+                        <select name="card_number" class="form-select mt-1">
+                            <option value="">-- Без картки (Знижка 0%) --</option>
+                            {% for c in customers %}
+                                <option value="{{ c['card_number'] }}">{{ c['cust_surname'] }} {{ c['cust_name'] }} (Знижка: {{ c['percent'] }}%)</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <h5 class="mb-3">Товари у кошику</h5>
+                    <table class="table table-bordered" id="cartTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Оберіть товар</th>
+                                <th style="width: 150px;">Кількість (шт)</th>
+                                <th style="width: 100px;">Дії</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cartBody">
+                            </tbody>
+                    </table>
+
+                    <button type="button" class="btn btn-outline-primary mb-4" onclick="addCartRow()">
+                        + Додати рядок товару
+                    </button>
+
+                    <hr>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{{ url_for('receipts') }}" class="btn btn-secondary">Скасувати</a>
+                        <button type="submit" class="btn btn-success btn-lg">Пробити чек</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function addCartRow() {
+        const tbody = document.getElementById('cartBody');
+        const row = document.createElement('tr');
+
+        row.innerHTML = `
+            <td>
+                <select name="upc[]" class="form-select" required>
+                    <option value="" disabled selected>-- Оберіть товар зі складу --</option>
+                    {% for p in products %}
+                        <option value="{{ p['UPC'] }}">
+                            {{ p['product_name'] }}
+                            ({% if p['promotional_product'] %}Акція{% else %}Звичайний{% endif %} | Базова ціна: {{ p['selling_price'] }} ₴)
+                        </option>
+                    {% endfor %}
+                </select>
+            </td>
+            <td>
+                <input type="number" name="quantity[]" class="form-control" min="1" value="1" required>
+            </td>
+            <td>
+                <button type="button" class="btn btn-danger w-100" onclick="this.closest('tr').remove()">Видалити</button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    }
+
+    // Автоматично додаємо перший порожній рядок при завантаженні сторінки
+    window.onload = addCartRow;
+</script>
+{% endblock %}
