@@ -402,15 +402,35 @@ def add_store_product():
             return redirect(url_for('add_store_product'))
 
         try:
+            # 1. Вставляємо нову партію товару
             conn.execute('''
-                INSERT INTO Store_Product (UPC, id_product, selling_price, products_number, promotional_product) 
-                VALUES (?, ?, ?, ?, ?)
-            ''', (upc, id_product, price, number, is_prom))
+                        INSERT INTO Store_Product (UPC, id_product, selling_price, products_number, promotional_product) 
+                        VALUES (?, ?, ?, ?, ?)
+                    ''', (upc, id_product, price, number, is_prom))
+
+            # 2. АВТОМАТИЧНА ПЕРЕОЦІНКА ВСІХ ПАРТІЙ (Вимога ТЗ)
+            if is_prom == 0:
+                conn.execute('''
+                            UPDATE Store_Product 
+                            SET selling_price = ? 
+                            WHERE id_product = ? AND promotional_product = 0
+                        ''', (price, id_product))
+
+                promo_price = price * 0.8
+                conn.execute('''
+                            UPDATE Store_Product 
+                            SET selling_price = ? 
+                            WHERE id_product = ? AND promotional_product = 1
+                        ''', (promo_price, id_product))
+
             conn.commit()
-            flash('Товар успішно виставлено на вітрину!', 'success')
+            flash('Товар успішно виставлено на вітрину, ціни перераховано!', 'success')
             return redirect(url_for('store_products'))
+
         except sqlite3.IntegrityError:
             flash('Помилка: Товар з таким UPC (штрих-кодом) вже існує!', 'danger')
+            return redirect(url_for('add_store_product'))
+
         finally:
             conn.close()
 
@@ -978,6 +998,49 @@ def delete_receipt(check_number):
 def logout():
     session.clear() # Очищаємо сесію
     return redirect(url_for('login'))
+
+
+# ==========================================
+# Кількість проданого товару за період
+# ==========================================
+@app.route('/product_sales', methods=['GET', 'POST'])
+def product_sales():
+    if session.get('role') != 'Менеджер':
+        flash('Доступ заборонено. Тільки Менеджер має доступ до звіту.', 'danger')
+        return redirect(url_for('dashboard'))
+
+    conn = get_db_connection()
+    total_sold = None
+    selected_product = None
+    date_from = request.form.get('date_from', '') if request.method == 'POST' else ''
+    date_to = request.form.get('date_to', '') if request.method == 'POST' else ''
+
+    if request.method == 'POST':
+        product_id = request.form.get('id_product')
+
+        # Хитрий запит, що з'єднує Продажі (Sale), Чеки (Receipt) та Товари в магазині (Store_Product)
+        query = '''
+            SELECT SUM(s.product_number) as total
+            FROM Sale s
+            JOIN Receipt r ON s.check_number = r.check_number
+            JOIN Store_Product sp ON s.UPC = sp.UPC
+            WHERE sp.id_product = ? AND r.print_date >= ? AND r.print_date <= ?
+        '''
+        # Додаємо час до дат, щоб включити весь день
+        result = conn.execute(query, (product_id, date_from + ' 00:00:00', date_to + ' 23:59:59')).fetchone()
+
+        total_sold = result['total'] if result['total'] else 0
+
+        # Щоб гарно вивести назву товару на екран
+        selected_product = conn.execute('SELECT product_name FROM Product WHERE id_product = ?',
+                                        (product_id,)).fetchone()
+
+    # Беремо всі базові товари для випадаючого списку
+    products = conn.execute('SELECT id_product, product_name FROM Product ORDER BY product_name ASC').fetchall()
+    conn.close()
+
+    return render_template('product_sales.html', products=products, total_sold=total_sold,
+                           selected_product=selected_product, date_from=date_from, date_to=date_to)
 
 
 if __name__ == '__main__':
