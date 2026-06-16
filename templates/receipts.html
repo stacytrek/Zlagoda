@@ -1,53 +1,129 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Історія продажів (Чеки)</h2>
-    {% if role == 'Касир' %}
-    <a href="{{ url_for('add_receipt') }}" class="btn btn-success">🛒 Створити чек</a>
-    {% endif %}
-</div>
-
-<div class="card shadow-sm">
-    <div class="card-body p-0">
-        <table class="table table-hover table-bordered mb-0">
-            <thead class="table-light">
-                <tr>
-                    <th>№ Чека</th>
-                    <th>Дата та час</th>
-                    <th>Касир</th>
-                    <th>Знижка клієнта</th>
-                    <th>ПДВ (20%)</th>
-                    <th>Загальна сума</th>
-                    <th>Дії</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for r in receipts %}
-                <tr>
-                    <td><strong>{{ r['check_number'] }}</strong></td>
-                    <td>{{ r['print_date'] }}</td>
-                    <td>{{ r['empl_surname'] }} {{ r['empl_name'] }}</td>
-                    <td>
-                        {% if r['percent'] %}
-                            <span class="badge bg-success">-{{ r['percent'] }}%</span>
-                        {% else %}
-                            <span class="text-muted">Без картки</span>
-                        {% endif %}
-                    </td>
-                    <td class="text-muted">{{ "%.2f"|format(r['vat']) }} ₴</td>
-                    <td><strong>{{ "%.2f"|format(r['sum_total']) }} ₴</strong></td>
-                    <td>
-                        <button class="btn btn-sm btn-outline-info">Деталі</button>
-                    </td>
-                </tr>
+<div class="container-fluid py-2">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 pb-3 border-bottom d-print-none">
+        <div>
+            <h2 class="h3 mb-1 text-dark fw-bold">Історія продажів (Чеки)</h2>
+            <p class="small text-muted mb-0">
+                {% if session.get('role') == 'Касир' %}
+                    Відображаються лише ваші особисті чеки
                 {% else %}
-                <tr>
-                    <td colspan="7" class="text-center">Жодного чека ще не створено.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                    Повний контроль усіх касових операцій
+                {% endif %}
+            </p>
+        </div>
+        
+        <div class="d-flex gap-2">
+            <button onclick="window.print()" class="btn btn-outline-dark shadow-sm px-3 py-2">
+                🖨️ Звіт (Друк)
+            </button>
+
+            {% if session.get('role') == 'Касир' %}
+            <a href="{{ url_for('add_receipt') }}" class="btn btn-success shadow-sm px-3 py-2">
+                🛒 Створити чек
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4 bg-light d-print-none">
+        <div class="card-body py-3">
+            <form method="GET" action="{{ url_for('receipts') }}" class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold text-muted mb-1">З дати</label>
+                    <input type="date" name="date_from" class="form-control" value="{{ date_from }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold text-muted mb-1">По дату</label>
+                    <input type="date" name="date_to" class="form-control" value="{{ date_to }}">
+                </div>
+
+                {% if session.get('role') == 'Менеджер' %}
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold text-muted mb-1">Касир</label>
+                    <select name="cashier_id" class="form-select">
+                        <option value="">-- Всі касири --</option>
+                        {% for c in cashiers %}
+                            <option value="{{ c.id_employee }}" {% if cashier_id == c.id_employee %}selected{% endif %}>
+                                {{ c.empl_surname }} {{ c.empl_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+
+                <div class="col-md-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary w-100">Фільтрувати</button>
+                    <a href="{{ url_for('receipts') }}" class="btn btn-outline-secondary">Скинути</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if receipts %}
+    <div class="alert alert-success d-flex justify-content-between align-items-center shadow-sm border-0 mb-4 py-3">
+        <div>
+            <h5 class="alert-heading mb-1 fw-bold">Підсумок за обраний період</h5>
+            <p class="mb-0 small">Загальна сума всіх відфільтрованих чеків з урахуванням ПДВ та знижок.</p>
+        </div>
+        <div class="text-end">
+            <span class="fs-3 fw-bold">{{ "%.2f"|format(total_sum) }} ₴</span>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-body p-0 table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">№ Чека</th>
+                        <th>Дата та час</th>
+                        <th>Касир</th>
+                        <th>Знижка</th>
+                        <th>ПДВ (20%)</th>
+                        <th>Сума</th>
+                        <th class="text-center pe-4 d-print-none">Дії</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in receipts %}
+                    <tr>
+                        <td class="ps-4 font-monospace fw-bold">{{ r.check_number }}</td>
+                        <td>{{ r.print_date }}</td>
+                        <td>{{ r.empl_surname }} {{ r.empl_name }}</td>
+                        <td>
+                            {% if r.percent %}
+                                <span class="badge bg-success rounded-pill">-{{ r.percent }}%</span>
+                            {% else %}
+                                <span class="text-muted small">Немає</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-muted font-monospace">{{ "%.2f"|format(r.vat) }} ₴</td>
+                        <td class="fw-bold text-dark font-monospace">{{ "%.2f"|format(r.sum_total) }} ₴</td>
+                        <td class="text-center pe-4 d-print-none">
+                            <div class="d-flex justify-content-center gap-2">
+                                <a href="{{ url_for('receipt_details', check_number=r.check_number) }}" class="btn btn-sm btn-outline-info px-3">Деталі</a>
+                                
+                                {% if session.get('role') == 'Менеджер' %}
+                                <a href="{{ url_for('delete_receipt', check_number=r.check_number) }}" 
+                                   class="btn btn-sm btn-outline-danger px-3" 
+                                   onclick="return confirm('Ви впевнені, що хочете вилучити цей чек?');">Видалити</a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            За вказаними критеріями чеків не знайдено.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}

@@ -4,6 +4,86 @@
     <meta charset="UTF-8">
     <title>ZLAGODA - Супермаркет</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* СТИЛІ ВИКЛЮЧНО ДЛЯ ДРУКУ ТА ПОПЕРЕДНЬОГО ПЕРЕГЛЯДУ ЗВІТІВ */
+        @media print {
+            /* 1. ПРИБИРАЄМО URL-АДРЕСУ ТА СТАНДАРТНІ КОЛОНТИТУЛИ БРАУЗЕРА */
+            @page { 
+                margin: 0 !important; 
+                size: A4 portrait;
+            }
+        
+            body { 
+                padding: 1.5cm !important; 
+            }
+
+            /* 2. ПРИХОВУЄМО ІНТЕРФЕЙС (меню, кнопки, фільтри) */
+            .navbar, .btn, form, .alert, .d-print-none { 
+                display: none !important; 
+            }
+        
+            .card { 
+                border: none !important; 
+                box-shadow: none !important; 
+                background-color: #fff !important;
+            }
+        
+            /* 3. ФІКС ТАБЛИЦЬ (Щоб не розривало слова і не з'їжджали колонки) */
+            .table-responsive { 
+                overflow: visible !important; 
+            }
+        
+            table { 
+                width: 100% !important; 
+                border-collapse: collapse !important; 
+                /* Дозволяємо браузеру самому адекватно розрахувати ширину колонок */
+                table-layout: auto !important; 
+                font-size: 12px !important; 
+            }
+
+            /* Ігноруємо відсотки ширини, які задавалися для екрану */
+            th, td {
+                width: auto !important;
+            }
+
+            table th, table td { 
+                border: 1px solid #000 !important; 
+                padding: 8px !important; 
+                color: #000 !important;
+                /* Забороняємо ламати слова посередині */
+                word-wrap: normal !important; 
+                word-break: normal !important;
+                white-space: normal !important;
+                vertical-align: middle !important;
+            }
+
+            /* 4. ФІКС ПОРОЖНІХ РЯДКІВ (Усуваємо фантомні хвости таблиці) */
+            td[colspan] {
+                border-right: 1px solid #000 !important;
+            }
+
+            /* 5. ФІКС ЗНАЧКІВ (Прибираємо брудні рамки навколо ID та знижок) */
+            .badge {
+                border: none !important;
+                background: transparent !important;
+                color: #000 !important;
+                padding: 0 !important;
+                font-size: 12px !important;
+                font-weight: bold !important;
+            }
+
+            /* Показуємо наші кастомні колонтитули */
+            .print-header, .print-footer {
+                display: block !important;
+                color: #000 !important;
+            }
+        }
+
+        /* Ховаємо наші кастомні колонтитули у звичайному режимі екрану */
+        .print-header, .print-footer {
+            display: none;
+        }
+    </style>
 </head>
 <body class="bg-light">
     <div class="container mt-4">
@@ -50,7 +130,23 @@
           {% endif %}
         {% endwith %}
 
+        
+
+        <div class="print-header text-center mb-4">
+            <h2 class="fw-bold">АІС "ZLAGODA"</h2>
+            <p><strong>Офіційний звіт</strong><br>
+            Дата формування: <script>document.write(new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString());</script></p>
+        <hr style="border-top: 2px solid #000;">
+        </div>
+
         {% block content %}{% endblock %}
+
+        <div class="print-footer mt-5 pt-3 border-top text-center">
+            <p class="small mb-0">Згенеровано автоматизованою інформаційною системою міні-супермаркету "Zlagoda".</>
+            <p class="small">Підпис відповідальної особи: ____________________</p>
+        </div>
+
+
     </div>
 </body>
 </html>

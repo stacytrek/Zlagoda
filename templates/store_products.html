@@ -1,57 +1,99 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Наявність товарів у магазині</h2>
-    {% if role == 'Менеджер' %}
-    <a href="{{ url_for('add_store_product') }}" class="btn btn-success">+ Виставити товар</a>
-    {% endif %}
-</div>
-
-<div class="card shadow-sm">
-    <div class="card-body p-0">
-        <table class="table table-hover table-bordered mb-0">
-            <thead class="table-light">
-                <tr>
-                    <th>UPC (Штрих-код)</th>
-                    <th>Назва товару</th>
-                    <th>Ціна продажу</th>
-                    <th>Кількість</th>
-                    <th>Тип</th>
-                    <th>Дії</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for sp in store_products %}
-                <tr>
-                    <td><strong>{{ sp['UPC'] }}</strong></td>
-                    <td>{{ sp['product_name'] }}</td>
-                    <td>{{ sp['selling_price'] }} ₴</td>
-                    <td>
-                        {% if sp['products_number'] < 10 %}
-                            <span class="text-danger fw-bold">{{ sp['products_number'] }} шт.</span>
-                        {% else %}
-                            {{ sp['products_number'] }} шт.
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if sp['promotional_product'] %}
-                            <span class="badge bg-warning text-dark">Акційний</span>
-                        {% else %}
-                            <span class="badge bg-secondary">Звичайний</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <button class="btn btn-sm btn-outline-primary">Редагувати</button>
-                    </td>
-                </tr>
+<div class="container-fluid py-2">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 pb-3 border-bottom d-print-none">
+        <div>
+            <h2 class="h3 mb-1 text-dark fw-bold">Вітрина магазину</h2>
+            <p class="small text-muted mb-0">
+                {% if session.get('role') == 'Менеджер' %}
+                    Сортування за замовчуванням: за кількістю (від найменшої)
                 {% else %}
-                <tr>
-                    <td colspan="6" class="text-center">На вітрині ще немає товарів.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                    Сортування за замовчуванням: за назвою товару
+                {% endif %}
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <button onclick="window.print()" class="btn btn-outline-dark shadow-sm px-3 py-2">
+                🖨️ Звіт (Друк)
+            </button>
+
+            {% if session.get('role') == 'Менеджер' %}
+            <a href="{{ url_for('add_store_product') }}" class="btn btn-success shadow-sm px-3 py-2">+ Виставити товар</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4 bg-light d-print-none">
+        <div class="card-body py-3">
+            <form method="GET" action="{{ url_for('store_products') }}" class="row g-3 align-items-end">
+                <div class="col-md-5">
+                    <label class="form-label small fw-bold text-muted mb-1">Пошук за UPC (штрих-кодом)</label>
+                    <input type="text" name="upc" class="form-control" placeholder="Введіть UPC..." value="{{ upc }}">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold text-muted mb-1">Тип товару</label>
+                    <select name="promo" class="form-select">
+                        <option value="">-- Усі товари --</option>
+                        <option value="0" {% if promo == '0' %}selected{% endif %}>Звичайні</option>
+                        <option value="1" {% if promo == '1' %}selected{% endif %}>Акційні</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary w-100">Застосувати</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-body p-0 table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">UPC</th>
+                        <th>Назва товару</th>
+                        <th>Ціна продажу</th>
+                        <th>Кількість</th>
+                        <th>Тип</th>
+                        <th class="text-center pe-4 d-print-none">Дії</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sp in store_products %}
+                    <tr>
+                        <td class="ps-4 font-monospace">{{ sp.UPC }}</td>
+                        <td class="fw-bold">{{ sp.product_name }}</td>
+                        <td class="text-success fw-bold">{{ sp.selling_price }} ₴</td>
+                        <td>
+                            {% if sp.products_number < 10 %}
+                                <span class="badge bg-danger rounded-pill">{{ sp.products_number }} шт.</span>
+                            {% else %}
+                                {{ sp.products_number }} шт.
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if sp.promotional_product %}
+                                <span class="badge bg-warning text-dark">Акційний</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Звичайний</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center pe-4 d-print-none">
+                            {% if session.get('role') == 'Менеджер' %}
+                            <a href="{{ url_for('edit_store_product', upc=sp.UPC) }}" class="btn btn-sm btn-outline-primary">Редагувати</a>
+                            <a href="{{ url_for('delete_store_product', upc=sp.UPC) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Зняти товар з вітрини?');">Видалити</a>
+                            {% else %}
+                            <span class="text-muted small">Немає прав</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="6" class="text-center py-4 text-muted">За вашим запитом товарів не знайдено.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}

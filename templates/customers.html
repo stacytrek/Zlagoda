@@ -1,43 +1,120 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Постійні клієнти</h2>
-    <a href="{{ url_for('add_customer') }}" class="btn btn-success">+ Додати клієнта</a>
-</div>
+<div class="container-fluid py-2">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom d-print-none">
+        <div class="mb-3 mb-md-0">
+            <h2 class="h3 mb-1 text-dark fw-bold">Постійні клієнти</h2>
+            <p class="text-muted small mb-0">Управління базою лояльності покупців АІС «ZLAGODA»</p>
+        </div>
 
-<div class="card shadow-sm">
-    <div class="card-body p-0">
-        <table class="table table-hover table-bordered mb-0">
-            <thead class="table-light">
-                <tr>
-                    <th>Номер картки</th>
-                    <th>ПІБ Клієнта</th>
-                    <th>Телефон</th>
-                    <th>Знижка</th>
-                    <th>Дії</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for c in customers %}
-                <tr>
-                    <td><strong>{{ c['card_number'] }}</strong></td>
-                    <td>{{ c['cust_surname'] }} {{ c['cust_name'] }} {{ c['cust_patronymic'] or '' }}</td>
-                    <td>{{ c['phone_number'] }}</td>
-                    <td>
-                        <span class="badge bg-success">{{ c['percent'] }}%</span>
-                    </td>
-                    <td>
-                        <button class="btn btn-sm btn-outline-primary">Редагувати</button>
-                    </td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="5" class="text-center">Клієнтів ще немає.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="d-flex gap-2">
+            <!-- Кнопка друку -->
+            <button onclick="window.print()" class="btn btn-outline-dark shadow-sm px-3 py-2">
+                🖨️ Звіт (Друк)
+            </button>
+
+            <a href="{{ url_for('add_customer') }}" class="btn btn-success shadow-sm d-inline-flex align-items-center px-3 py-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-person-plus-fill me-2" viewBox="0 0 16 16">
+                    <path d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+                    <path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5"/>
+                </svg>
+                Додати клієнта
+            </a>
+        </div>
+    </div>
+
+    <!-- Додано d-print-none, щоб фільтри не друкувалися -->
+    <div class="card shadow-sm border-0 mb-4 bg-light d-print-none">
+        <div class="card-body py-3">
+            <form method="GET" action="{{ url_for('customers') }}" class="row g-3 align-items-end">
+                <div class="col-md-5">
+                    <label class="form-label small fw-bold text-muted mb-1">Пошук за прізвищем</label>
+                    <input type="text" name="surname" class="form-control" placeholder="Введіть прізвище..." value="{{ search_surname }}">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold text-muted mb-1">Фільтр за знижкою</label>
+                    <select name="percent" class="form-select">
+                        <option value="">-- Будь-яка знижка --</option>
+                        {% for p in percents %}
+                            <option value="{{ p.percent }}" {% if percent_filter == p.percent|string %}selected{% endif %}>
+                                {{ p.percent }}%
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary w-100">Знайти</button>
+                    <a href="{{ url_for('customers') }}" class="btn btn-outline-secondary">Скинути</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm mb-4 d-print-none" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light text-secondary text-uppercase border-bottom" style="font-size: 0.85rem; letter-spacing: 0.5px;">
+                        <tr>
+                            <th class="ps-4 py-3" style="width: 20%;">Номер картки</th>
+                            <th class="py-3" style="width: 30%;">ПІБ Клієнта</th>
+                            <th class="py-3" style="width: 20%;">Телефон</th>
+                            <th class="py-3" style="width: 15%;">Знижка</th>
+                            <!-- Приховуємо шапку "Дії" при друці -->
+                            <th class="py-3 text-center pe-4 d-print-none" style="width: 15%;">Дії</th>
+                        </tr>
+                    </thead>
+                    <tbody class="border-top-0">
+                        {% for c in customers %}
+                        <tr>
+                            <td class="ps-4">
+                                <span class="badge bg-light text-dark border px-2.5 py-2 font-monospace fs-6">{{ c.card_number }}</span>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-dark mb-0 fs-6">{{ c.cust_surname }} {{ c.cust_name }}</div>
+                                {% if c.cust_patronymic %}
+                                    <small class="text-muted" style="font-size: 0.8rem;">{{ c.cust_patronymic }}</small>
+                                {% endif %}
+                            </td>
+                            <td class="text-muted font-monospace">
+                                {{ c.phone_number }}
+                            </td>
+                            <td>
+                                <span class="badge bg-success px-3 py-2 rounded-pill shadow-xs fs-6">{{ c.percent }}%</span>
+                            </td>
+                            <!-- Приховуємо кнопки дій при друці -->
+                            <td class="text-center pe-4 d-print-none">
+                                <div class="d-flex justify-content-center gap-2">
+                                    <a href="{{ url_for('edit_customer', card_number=c.card_number) }}" class="btn btn-sm btn-outline-primary px-3 rounded-2 d-inline-flex align-items-center">Редагувати</a>
+                                    {% if session.get('role') in ['Менеджер', 'Головний менеджер'] %}
+                                    <a href="{{ url_for('delete_customer', card_number=c.card_number) }}" class="btn btn-sm btn-outline-danger px-3 rounded-2 d-inline-flex align-items-center" onclick="return confirm('Ви впевнені, що хочете вилучити картку клієнта?');">Вилучити</a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center py-5 text-muted">
+                                <p class="mb-0 fw-medium fs-5">Жодного клієнта не знайдено</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
