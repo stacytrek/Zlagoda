@@ -16,6 +16,13 @@
             body { 
                 padding: 1.5cm !important; 
             }
+            .container {
+            width: 100% !important;
+            max-width: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            }
+
 
             /* 2. ПРИХОВУЄМО ІНТЕРФЕЙС (меню, кнопки, фільтри) */
             .navbar, .btn, form, .alert, .d-print-none { 
@@ -111,6 +118,9 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link fw-bold text-success" href="{{ url_for('receipts') }}">Чеки</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link fw-bold text-info" href="{{ url_for('product_sales') }}">Звіт з продажу</a>
                         </li>
                     </ul>
                     <span class="navbar-text me-3">
