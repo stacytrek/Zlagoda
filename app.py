@@ -1,7 +1,9 @@
 import sqlite3
+import os
+from flask import Flask, render_template, request, redirect, url_for, session, flash
+from werkzeug.security import generate_password_hash, check_password_hash
 import random
 import string
-from datetime import datetime
 from flask import Flask, render_template, request, session, redirect, url_for, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, date
@@ -16,6 +18,44 @@ def get_db_connection():
     conn.execute('PRAGMA foreign_keys = ON;') # Обов'язково вмикаємо зовнішні ключі
     conn.row_factory = sqlite3.Row # Дозволяє звертатися до колонок за іменами (напр., row['empl_name'])
     return conn
+
+
+def init_db():
+    """Перевіряє, чи є база. Якщо немає — створює з нуля і додає працівників."""
+    db_path = 'database.db'
+
+    if not os.path.exists(db_path):
+        print("Бази даних не знайдено. Запускаємо автоматичну ініціалізацію...")
+
+        conn = sqlite3.connect(db_path)
+
+        # 1. Запускаємо SQL-скрипт (створює таблиці, товар, клієнта, чеки)
+        with open('schema.sql', 'r', encoding='utf-8') as f:
+            conn.executescript(f.read())
+
+        # 2. Додаємо Менеджера та Касира з правильними паролями
+        manager_pw = generate_password_hash('manager123')
+        cashier_pw = generate_password_hash('cashier123')
+
+        employees = [
+            ('M001', 'Петренко', 'Володимир', 'None', 'Менеджер', 25000,
+             '2005-01-01', '2026-01-01', '+380990000001', 'Київ', 'вул. Сковороди', '04070', manager_pw),
+            ('K001', 'Шевченко', 'Валентина', 'None', 'Касир', 15000,
+             '2005-02-02', '2026-01-01', '+380990000002', 'Київ', 'вул. Софіївська', '04070', cashier_pw)
+        ]
+
+        conn.executemany('''
+            INSERT INTO Employee (id_employee, empl_surname, empl_name, empl_patronymic, empl_role, 
+                                  salary, date_of_birth, date_of_start, phone_number, 
+                                  city, street, zip_code, password_hash)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', employees)
+
+        conn.commit()
+        conn.close()
+        print("Ініціалізація успішна!")
+        print("🔑 Менеджер: логін M001, пароль manager123")
+        print("🔑 Касир: логін K001, пароль cashier123")
 
 # Головна сторінка: якщо авторизований — на дашборд, якщо ні — на логін
 @app.route('/')
@@ -1044,4 +1084,5 @@ def product_sales():
 
 
 if __name__ == '__main__':
+    init_db()
     app.run(debug=True)
