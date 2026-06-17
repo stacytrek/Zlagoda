@@ -15,10 +15,11 @@
         </div>
         
         <div class="d-flex gap-2">
+            {% if session.get('role') == 'Менеджер' %}
             <button onclick="window.print()" class="btn btn-outline-dark shadow-sm px-3 py-2">
                 🖨️ Звіт (Друк)
             </button>
-
+            {% endif %}
             {% if session.get('role') == 'Касир' %}
             <a href="{{ url_for('add_receipt') }}" class="btn btn-success shadow-sm px-3 py-2">
                 🛒 Створити чек

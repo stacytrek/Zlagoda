@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center mb-4 d-print-none">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0 bg-light">
+            <div class="card-header bg-primary text-white border-0 py-3">
+                <h4 class="mb-0 fw-bold">Аналітика ефективності касирів</h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST">
+                    <p class="text-muted small mb-3">Виберіть період для розрахунку кількості проданих товарів та створених чеків кожним касиром.</p>
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label fw-bold small text-uppercase">З дати</label>
+                            <input type="date" name="date_from" class="form-control form-control-lg" value="{{ date_from }}" required>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label fw-bold small text-uppercase">По дату</label>
+                            <input type="date" name="date_to" class="form-control form-control-lg" value="{{ date_to }}" required>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary px-4">Скасувати</a>
+                        <button type="submit" class="btn btn-primary px-5 fw-bold">Розрахувати ефективність</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if request.method == 'POST' %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+
+        <div class="d-flex justify-content-between align-items-center mb-3 d-print-none">
+            <h5 class="text-muted mb-0">Результати за період: <strong class="text-dark">{{ date_from }} — {{ date_to }}</strong></h5>
+            <button onclick="window.print()" class="btn btn-outline-dark shadow-sm">
+                🖨️ Роздрукувати звіт
+            </button>
+        </div>
+
+        <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
+            <div class="card-body p-0 table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light text-uppercase" style="font-size: 0.85rem; letter-spacing: 0.5px;">
+                        <tr>
+                            <th class="ps-4 py-3">Прізвище та Ім'я касира</th>
+                            <th class="py-3 text-center">Створено чеків</th>
+                            <th class="py-3 text-end pe-4">Продано товарів (одиниць)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="border-top-0">
+                        {% for row in cashier_data %}
+                        <tr>
+                            <td class="ps-4 fw-bold text-dark fs-6">{{ row.empl_surname }} {{ row.empl_name }}</td>
+                            <td class="text-center"><span class="badge bg-secondary rounded-pill fs-6 px-3">{{ row.receipt_count }}</span></td>
+                            <td class="text-end pe-4 fw-bold text-success fs-5">{{ row.total_items }} шт.</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="3" class="text-center py-5 text-muted">
+                                За цей період касири не здійснювали продажів.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endif %}
+{% endblock %}

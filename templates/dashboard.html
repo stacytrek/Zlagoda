@@ -124,6 +124,30 @@
                 </div>
             </a>
         </div>
+
+        <div class="col-12 col-sm-6 col-lg-3">
+            <a href="{{ url_for('product_sales') }}" class="text-decoration-none">
+                <div class="card h-100 shadow-sm border-0 menu-card" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+                    <div class="card-body text-center p-4">
+                        <div class="display-3 mb-3">📈</div>
+                        <h5 class="card-title text-dark fw-bold mb-1">Аналітика продажів</h5>
+                        <p class="small text-muted mb-0">Звіт по товарам</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-3">
+            <a href="{{ url_for('cashier_sales') }}" class="text-decoration-none">
+                <div class="card h-100 shadow-sm border-0 menu-card" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+                    <div class="card-body text-center p-4">
+                        <div class="display-3 mb-3">📊</div>
+                        <h5 class="card-title text-dark fw-bold mb-1">Ефективність</h5>
+                        <p class="small text-muted mb-0">Звіт роботи касирів</p>
+                    </div>
+                </div>
+            </a>
+        </div>
         {% endif %}
 
     </div>

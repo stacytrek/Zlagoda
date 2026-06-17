@@ -106,9 +106,19 @@
                 <a class="navbar-brand fw-bold text-primary" href="{{ url_for('dashboard') }}">ZLAGODA</a>
                 <div class="collapse navbar-collapse">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+                        {% if session.get('role') in ['Менеджер', 'Головний менеджер'] %}
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('employees') }}">Працівники</a>
                         </li>
+                        {% endif %}
+
+                        {% if session.get('role') in ['Касир'] %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('employees') }}">Профіль</a>
+                        </li>
+                        {% endif %}
+
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('categories') }}">Категорії</a>
                         </li>
@@ -124,9 +134,11 @@
                         <li class="nav-item">
                             <a class="nav-link fw-bold text-success" href="{{ url_for('receipts') }}">Чеки</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link fw-bold text-info" href="{{ url_for('product_sales') }}">Звіт з продажу</a>
-                        </li>
+                        {% if session.get('role') in ['Менеджер', 'Головний менеджер'] %}
+                            <li class="nav-item">
+                                <a class="nav-link fw-bold text-info" href="{{ url_for('product_sales') }}">Звіт з продажу</a>
+                            </li>
+                        {% endif %}
                     </ul>
                     <span class="navbar-text me-3">
                         {{ session.get('name') }} (<strong>{{ session.get('role') }}</strong>)
@@ -148,11 +160,37 @@
         
 
         <div class="print-header text-center mb-4">
-            <h2 class="fw-bold">АІС "ZLAGODA"</h2>
-            <p><strong>Офіційний звіт</strong><br>
-            Дата формування: <script>document.write(new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString());</script></p>
-        <hr style="border-top: 2px solid #000;">
+            <h2 class="fw-bold text-uppercase">АІС "ZLAGODA"</h2>
+            <p class="mb-2"><strong id="print-report-title" class="fs-4">Офіційний звіт</strong></p>
+            <p class="small text-muted">Дата та час формування: <span id="print-date"></span></p>
+            <hr style="border-top: 2px solid #000;">
         </div>
+
+        <script>
+            window.addEventListener("beforeprint", function() {
+                // Збираємо всі заголовки на сторінці
+                var headings = document.querySelectorAll("h2, h3, h4");
+                var reportTitle = "Офіційний звіт";
+        
+                // Перебираємо їх по черзі
+                for (var i = 0; i < headings.length; i++) {
+                    var text = headings[i].innerText.trim();
+
+                    // Беремо перший заголовок, який не порожній і НЕ є назвою системи
+                    if (text && !text.toUpperCase().includes('ZLAGODA')) {
+                        reportTitle = "Звіт: " + text;
+                        break; // Знайшли потрібний — зупиняємо пошук
+                    }
+                }
+
+                document.getElementById("print-report-title").innerText = reportTitle;
+
+                var now = new Date();
+                var dateString = now.toLocaleDateString('uk-UA');
+                var timeString = now.toLocaleTimeString('uk-UA');
+                document.getElementById("print-date").innerText = dateString + ' о ' + timeString;
+            });
+        </script>
 
         {% block content %}{% endblock %}
 
